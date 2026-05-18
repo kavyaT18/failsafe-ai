@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FailSafe — Student Risk Detection</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-x">✕</span>
+        <span class="logo-text">FAILSAFE</span>
+      </div>
+      <p class="tagline">Early Student Risk Detection &amp; Intervention System</p>
+    </div>
+    <div class="header-line"></div>
+  </header>
+
+  <!-- TABS -->
+  <nav class="tabs">
+    <button class="tab active" data-tab="single">Single Student</button>
+    <button class="tab" data-tab="bulk">Bulk CSV Upload</button>
+  </nav>
+
+  <main>
+
+    <!-- ══════════════════════════════ SINGLE STUDENT ══════════════════════════════ -->
+    <section id="single" class="panel active">
+
+      <div class="card">
+        <div class="card-label">STUDENT INPUT</div>
+
+        <div class="form-grid">
+          <!-- Row 1: Grades -->
+          <div class="field">
+            <label>G1 <span class="hint">Period 1 grade (0–20)</span></label>
+            <input type="number" id="G1" value="12" min="0" max="20" />
+          </div>
+          <div class="field">
+            <label>G2 <span class="hint">Period 2 grade (0–20)</span></label>
+            <input type="number" id="G2" value="11" min="0" max="20" />
+          </div>
+          <div class="field">
+            <label>Absences</label>
+            <input type="number" id="absences" value="4" min="0" max="93" />
+          </div>
+          <div class="field">
+            <label>Failures <span class="hint">past class failures</span></label>
+            <input type="number" id="failures" value="0" min="0" max="4" />
+          </div>
+
+          <!-- Row 2: Background -->
+          <div class="field">
+            <label>Age</label>
+            <input type="number" id="age" value="17" min="15" max="22" />
+          </div>
+          <div class="field">
+            <label>Study Time <span class="hint">1=&lt;2h … 4=&gt;10h</span></label>
+            <input type="number" id="studytime" value="2" min="1" max="4" />
+          </div>
+          <div class="field">
+            <label>Mother's Edu <span class="hint">0–4</span></label>
+            <input type="number" id="Medu" value="3" min="0" max="4" />
+          </div>
+          <div class="field">
+            <label>Father's Edu <span class="hint">0–4</span></label>
+            <input type="number" id="Fedu" value="3" min="0" max="4" />
+          </div>
+
+          <!-- Row 3: Selects -->
+          <div class="field">
+            <label>Sex</label>
+            <select id="sex"><option value="M">Male</option><option value="F">Female</option></select>
+          </div>
+          <div class="field">
+            <label>Address</label>
+            <select id="address"><option value="U">Urban</option><option value="R">Rural</option></select>
+          </div>
+          <div class="field">
+            <label>School Support</label>
+            <select id="schoolsup"><option value="no">No</option><option value="yes">Yes</option></select>
+          </div>
+          <div class="field">
+            <label>Family Support</label>
+            <select id="famsup"><option value="yes">Yes</option><option value="no">No</option></select>
+          </div>
+          <div class="field">
+            <label>Paid Classes</label>
+            <select id="paid"><option value="no">No</option><option value="yes">Yes</option></select>
+          </div>
+          <div class="field">
+            <label>Activities</label>
+            <select id="activities"><option value="no">No</option><option value="yes">Yes</option></select>
+          </div>
+          <div class="field">
+            <label>Nursery</label>
+            <select id="nursery"><option value="yes">Yes</option><option value="no">No</option></select>
+          </div>
+          <div class="field">
+            <label>Wants Higher Edu</label>
+            <select id="higher"><option value="yes">Yes</option><option value="no">No</option></select>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="predictBtn">
+          <span class="btn-text">RUN PREDICTION</span>
+          <span class="btn-spinner" hidden></span>
+        </button>
+        <div class="error-msg" id="singleError" hidden></div>
+      </div>
+
+      <!-- RESULT -->
+      <div id="singleResult" class="result-area" hidden>
+
+        <div class="result-top">
+          <div class="risk-badge-wrap">
+            <div class="risk-badge" id="riskBadge">—</div>
+            <div class="risk-label">RISK LEVEL</div>
+          </div>
+          <div class="prob-wrap">
+            <div class="prob-num" id="probNum">—</div>
+            <div class="prob-label">probability of failure</div>
+          </div>
+          <div class="prob-bar-outer">
+            <div class="prob-bar-inner" id="probBar"></div>
+          </div>
+        </div>
+
+        <!-- SHAP -->
+        <div class="card" id="shapCard">
+          <div class="card-label">SHAP — WHY THIS PREDICTION?</div>
+          <div id="shapBars"></div>
+        </div>
+
+        <!-- LLM -->
+        <div class="card" id="llmCard" hidden>
+          <div class="card-label">AI INTERVENTION PLAN</div>
+          <div class="llm-body" id="llmBody"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════ BULK ══════════════════════════════ -->
+    <section id="bulk" class="panel">
+
+      <div class="card">
+        <div class="card-label">UPLOAD CLASS CSV</div>
+        <p class="upload-hint">Upload <code>student-por.csv</code> or <code>student-mat.csv</code> (semicolon-separated, UCI format)</p>
+
+        <label class="file-drop" id="fileDrop">
+          <input type="file" id="csvFile" accept=".csv" hidden />
+          <span class="file-icon">⬆</span>
+          <span class="file-text" id="fileText">Drop CSV here or click to browse</span>
+        </label>
+
+        <button class="btn-primary" id="bulkBtn">
+          <span class="btn-text">ANALYSE CLASS</span>
+          <span class="btn-spinner" hidden></span>
+        </button>
+        <div class="error-msg" id="bulkError" hidden></div>
+      </div>
+
+      <div id="bulkResult" hidden>
+
+        <div class="stats-row" id="statsRow"></div>
+
+        <div class="card">
+          <div class="card-label-row">
+            <div class="card-label">STUDENT RESULTS</div>
+            <select id="tierFilter">
+              <option value="">All Students</option>
+              <option value="HIGH">High Risk</option>
+              <option value="MEDIUM">Medium Risk</option>
+              <option value="LOW">Low Risk</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table id="bulkTable">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Risk %</th><th>Tier</th><th>G1</th><th>G2</th><th>Absences</th>
+                </tr>
+              </thead>
+              <tbody id="bulkBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

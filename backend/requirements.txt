@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pandas
+numpy
+scikit-learn==1.6.1
+xgboost
+shap
+python-dotenv
+joblib
+python-multipart
+imblearn
+groq
+imbalanced-learn==0.14.0
